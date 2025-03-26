@@ -1,0 +1,20 @@
+[0.844s] Invoking command in '/home/evangelista/ros2_ws/build/pub_test': PYTHONPATH=/home/evangelista/ros2_ws/build/pub_test/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/evangelista/ros2_ws/install/pub_test/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py develop --editable --build-directory /home/evangelista/ros2_ws/build/pub_test/build --no-deps symlink_data
+[1.191s] running develop
+[1.468s] running egg_info
+[1.468s] writing pub_test.egg-info/PKG-INFO
+[1.469s] writing dependency_links to pub_test.egg-info/dependency_links.txt
+[1.469s] writing entry points to pub_test.egg-info/entry_points.txt
+[1.470s] writing requirements to pub_test.egg-info/requires.txt
+[1.470s] writing top-level names to pub_test.egg-info/top_level.txt
+[1.473s] reading manifest file 'pub_test.egg-info/SOURCES.txt'
+[1.474s] writing manifest file 'pub_test.egg-info/SOURCES.txt'
+[1.476s] running build_ext
+[1.477s] Creating /home/evangelista/ros2_ws/install/pub_test/lib/python3.10/site-packages/pub-test.egg-link (link to .)
+[1.478s] Installing publicador_midia script to /home/evangelista/ros2_ws/install/pub_test/lib/pub_test
+[1.478s] Installing publicador_texto script to /home/evangelista/ros2_ws/install/pub_test/lib/pub_test
+[1.479s] Installing publicador_video script to /home/evangelista/ros2_ws/install/pub_test/lib/pub_test
+[1.479s] Installing text_publisher script to /home/evangelista/ros2_ws/install/pub_test/lib/pub_test
+[1.480s] 
+[1.480s] Installed /home/evangelista/ros2_ws/build/pub_test
+[1.480s] running symlink_data
+[1.530s] Invoked command in '/home/evangelista/ros2_ws/build/pub_test' returned '0': PYTHONPATH=/home/evangelista/ros2_ws/build/pub_test/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/evangelista/ros2_ws/install/pub_test/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py develop --editable --build-directory /home/evangelista/ros2_ws/build/pub_test/build --no-deps symlink_data

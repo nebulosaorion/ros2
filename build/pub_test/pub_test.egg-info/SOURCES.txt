@@ -9,6 +9,7 @@ setup.py
 ../../build/pub_test/pub_test.egg-info/top_level.txt
 ../../build/pub_test/pub_test.egg-info/zip-safe
 pub_test/__init__.py
+pub_test/publicador_midia.py
 pub_test/publicador_texto.py
 pub_test/publicador_video.py
 pub_test/text_publisher.py

@@ -23,7 +23,7 @@ setup(
 	    'publicador_texto = pub_test.publicador_texto:main',
 	    'publicador_video = pub_test.publicador_video:main',
         'text_publisher = pub_test.text_publisher:main',
-        'publicador_midia = pub_test.publicador_midia:main',  # Adicione esta linha
+        'publicador_midia = pub_test.publicador_midia:main',  
         ],
     },
 )
