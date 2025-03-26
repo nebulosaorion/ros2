@@ -1,0 +1,19 @@
+[0.578s] Invoking command in '/home/evangelista/ros2_ws/build/pub_test': PYTHONPATH=/home/evangelista/ros2_ws/build/pub_test/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/evangelista/ros2_ws/install/pub_test/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py develop --editable --build-directory /home/evangelista/ros2_ws/build/pub_test/build --no-deps symlink_data
+[0.825s] running develop
+[0.970s] running egg_info
+[0.970s] writing pub_test.egg-info/PKG-INFO
+[0.970s] writing dependency_links to pub_test.egg-info/dependency_links.txt
+[0.971s] writing entry points to pub_test.egg-info/entry_points.txt
+[0.971s] writing requirements to pub_test.egg-info/requires.txt
+[0.971s] writing top-level names to pub_test.egg-info/top_level.txt
+[0.972s] reading manifest file 'pub_test.egg-info/SOURCES.txt'
+[0.973s] writing manifest file 'pub_test.egg-info/SOURCES.txt'
+[0.974s] running build_ext
+[0.975s] Creating /home/evangelista/ros2_ws/install/pub_test/lib/python3.10/site-packages/pub-test.egg-link (link to .)
+[0.976s] Installing publicador_texto script to /home/evangelista/ros2_ws/install/pub_test/lib/pub_test
+[0.976s] Installing publicador_video script to /home/evangelista/ros2_ws/install/pub_test/lib/pub_test
+[0.976s] Installing text_publisher script to /home/evangelista/ros2_ws/install/pub_test/lib/pub_test
+[0.977s] 
+[0.977s] Installed /home/evangelista/ros2_ws/build/pub_test
+[0.977s] running symlink_data
+[1.006s] Invoked command in '/home/evangelista/ros2_ws/build/pub_test' returned '0': PYTHONPATH=/home/evangelista/ros2_ws/build/pub_test/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/evangelista/ros2_ws/install/pub_test/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py develop --editable --build-directory /home/evangelista/ros2_ws/build/pub_test/build --no-deps symlink_data

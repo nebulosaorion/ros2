@@ -11,6 +11,7 @@ setup.py
 pub_test/__init__.py
 pub_test/publicador_texto.py
 pub_test/publicador_video.py
+pub_test/text_publisher.py
 pub_test.egg-info/PKG-INFO
 pub_test.egg-info/SOURCES.txt
 pub_test.egg-info/dependency_links.txt
