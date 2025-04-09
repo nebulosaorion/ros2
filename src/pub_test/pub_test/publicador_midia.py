@@ -223,7 +223,7 @@ def main(args=None):
     rclpy.init(args=args)
     try:
         no = MediaPublisher()
-        # Exemplo de uso:
+        
         no.sendoDataToFoxGlove(video_path='/home/evangelista/videos/chimas.mp4')
         rclpy.spin(no)
     except KeyboardInterrupt:
