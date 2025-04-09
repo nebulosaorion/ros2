@@ -1,0 +1,39 @@
+[1.215s] Invoking command in '/home/evangelista/ros2_ws/src/pub_test': PYTHONPATH=/home/evangelista/ros2_ws/build/pub_test/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/evangelista/ros2_ws/install/pub_test/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py egg_info --egg-base ../../build/pub_test build --build-base /home/evangelista/ros2_ws/build/pub_test/build install --record /home/evangelista/ros2_ws/build/pub_test/install.log --single-version-externally-managed install_data
+[1.600s] running egg_info
+[1.600s] creating ../../build/pub_test/pub_test.egg-info
+[1.601s] writing ../../build/pub_test/pub_test.egg-info/PKG-INFO
+[1.602s] writing dependency_links to ../../build/pub_test/pub_test.egg-info/dependency_links.txt
+[1.602s] writing entry points to ../../build/pub_test/pub_test.egg-info/entry_points.txt
+[1.602s] writing requirements to ../../build/pub_test/pub_test.egg-info/requires.txt
+[1.602s] writing top-level names to ../../build/pub_test/pub_test.egg-info/top_level.txt
+[1.602s] writing manifest file '../../build/pub_test/pub_test.egg-info/SOURCES.txt'
+[1.603s] reading manifest file '../../build/pub_test/pub_test.egg-info/SOURCES.txt'
+[1.604s] writing manifest file '../../build/pub_test/pub_test.egg-info/SOURCES.txt'
+[1.605s] running build
+[1.605s] running build_py
+[1.606s] creating /home/evangelista/ros2_ws/build/pub_test/build
+[1.606s] creating /home/evangelista/ros2_ws/build/pub_test/build/lib
+[1.606s] creating /home/evangelista/ros2_ws/build/pub_test/build/lib/pub_test
+[1.607s] copying pub_test/publicador_midia.py -> /home/evangelista/ros2_ws/build/pub_test/build/lib/pub_test
+[1.608s] copying pub_test/__init__.py -> /home/evangelista/ros2_ws/build/pub_test/build/lib/pub_test
+[1.608s] running install
+[1.608s] running install_lib
+[1.609s] creating /home/evangelista/ros2_ws/install/pub_test/lib/python3.10/site-packages/pub_test
+[1.616s] copying /home/evangelista/ros2_ws/build/pub_test/build/lib/pub_test/publicador_midia.py -> /home/evangelista/ros2_ws/install/pub_test/lib/python3.10/site-packages/pub_test
+[1.616s] copying /home/evangelista/ros2_ws/build/pub_test/build/lib/pub_test/__init__.py -> /home/evangelista/ros2_ws/install/pub_test/lib/python3.10/site-packages/pub_test
+[1.616s] byte-compiling /home/evangelista/ros2_ws/install/pub_test/lib/python3.10/site-packages/pub_test/publicador_midia.py to publicador_midia.cpython-310.pyc
+[1.620s] byte-compiling /home/evangelista/ros2_ws/install/pub_test/lib/python3.10/site-packages/pub_test/__init__.py to __init__.cpython-310.pyc
+[1.621s] running install_data
+[1.621s] creating /home/evangelista/ros2_ws/install/pub_test/share/ament_index
+[1.621s] creating /home/evangelista/ros2_ws/install/pub_test/share/ament_index/resource_index
+[1.621s] creating /home/evangelista/ros2_ws/install/pub_test/share/ament_index/resource_index/packages
+[1.621s] copying resource/pub_test -> /home/evangelista/ros2_ws/install/pub_test/share/ament_index/resource_index/packages
+[1.621s] copying package.xml -> /home/evangelista/ros2_ws/install/pub_test/share/pub_test
+[1.621s] creating /home/evangelista/ros2_ws/install/pub_test/share/pub_test/launch
+[1.621s] copying launch/combined_launch.py -> /home/evangelista/ros2_ws/install/pub_test/share/pub_test/launch
+[1.621s] running install_egg_info
+[1.622s] Copying ../../build/pub_test/pub_test.egg-info to /home/evangelista/ros2_ws/install/pub_test/lib/python3.10/site-packages/pub_test-0.0.0-py3.10.egg-info
+[1.623s] running install_scripts
+[1.649s] Installing publicador_midia script to /home/evangelista/ros2_ws/install/pub_test/lib/pub_test
+[1.650s] writing list of installed files to '/home/evangelista/ros2_ws/build/pub_test/install.log'
+[1.689s] Invoked command in '/home/evangelista/ros2_ws/src/pub_test' returned '0': PYTHONPATH=/home/evangelista/ros2_ws/build/pub_test/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/evangelista/ros2_ws/install/pub_test/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py egg_info --egg-base ../../build/pub_test build --build-base /home/evangelista/ros2_ws/build/pub_test/build install --record /home/evangelista/ros2_ws/build/pub_test/install.log --single-version-externally-managed install_data

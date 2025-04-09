@@ -1,4 +1,6 @@
 from setuptools import find_packages, setup
+from glob import glob
+import os
 
 package_name = 'pub_test'
 
@@ -10,6 +12,7 @@ setup(
         ('share/ament_index/resource_index/packages',
             ['resource/' + package_name]),
         ('share/' + package_name, ['package.xml']),
+        (os.path.join('share', package_name, 'launch'), glob('launch/*.py')),
     ],
     install_requires=['setuptools'],
     zip_safe=True,
@@ -20,10 +23,7 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-	    'publicador_texto = pub_test.publicador_texto:main',
-	    'publicador_video = pub_test.publicador_video:main',
-        'text_publisher = pub_test.text_publisher:main',
-        'publicador_midia = pub_test.publicador_midia:main',  
+            'publicador_midia = pub_test.publicador_midia:main',
         ],
     },
 )

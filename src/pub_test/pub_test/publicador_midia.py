@@ -1,253 +1,236 @@
 #!/usr/bin/env python3
-import rclpy  # Fornece a API básica para criar nós
-from rclpy.node import Node  # Classe base para criar nós personalizados
-from sensor_msgs.msg import Image  # Usada para publicar frames no tópico /ui_display
-from cv_bridge import CvBridge  # Converte entre imagens OpenCV (numpy) e mensagens ROS
-import cv2  # Processamento de imagem/vídeo (leitura, redimensionamento, exibição, etc.)
-import numpy as np  # Manipulação eficiente de arrays multidimensionais (imagens são arrays numpy)
-import threading  # Para executar o loop de entrada do teclado em paralelo
+import rclpy
+from rclpy.node import Node
+from sensor_msgs.msg import Image
+from cv_bridge import CvBridge
+import cv2
+import numpy as np
+import threading
 import time
+import os
 
 class MediaPublisher(Node):
     def __init__(self):
-        super().__init__('media_publisher')
+        super().__init__('publicador_midia')
+       
         
-        # Configurações iniciais
         self.modo = "texto"
-        self.publisher_ui = self.create_publisher(Image, '/ui_display', 10)
-        self.bridge = CvBridge()
+        self.publicador_ui = self.create_publisher(Image, '/ui_display', 10)
+        self.ponte = CvBridge()
+       
         
-        # Mensagens de texto
-        self.messages = [
-            "Assista ao movimento robotico.",
+        self.mensagens = [
+            "Assista ao movimento robótico.",
             "Agora, levante o objeto devagar.",
-            "Pronto! Movimento concluido.",
-            "AAAAAAAA AAAAAAAA AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA AAAAAAAAAAAAAAAAAAAAA AAAAAAAAAAAAAAAAAA AAAAAAAAAAAAA AAAAAAAAAAAAA "
+            "Pronto! Movimento concluído."
         ]
-        self.current_msg = 0
-        self.text_display_time = 3.0  # 3 segundos por mensagem (mais lento)
-        self.last_text_change = time.time()
-        
+        self.mensagem_atual = 0
+        self.tempo_exibicao_texto = 3.0
+        self.ultima_mudanca_texto = time.time()
+       
         # Configurações de mídia
-        self.video_path = '/home/evangelista/videos/chimas.mp4'
-        self.image_path = '/home/evangelista/exemplo/imagem.jpg'
-        self.cap = None
-        self.video_aspect_ratio = None
-        self.image_aspect_ratio = None
-        self.running = True
-        self.video_speed = 1.5  # Fator de aceleração do vídeo (1.5x mais rápido)
-        
+        self.caminho_video = '/home/evangelista/videos/chimas.mp4' 
+        self.caminho_imagem = '/home/evangelista/exemplo/imagem.jpg'  
+        self.video_captura = None
+        self.executando = True
+        self.velocidade_video = 1.5
+       
         # Configurações de display
-        self.display_size = (640, 480)  
-        self.bg_color = (255, 255, 255)  
-        self.text_color = (0, 0, 0)      
-        self.font = cv2.FONT_HERSHEY_SIMPLEX
-        self.font_scale = 0.8
-        self.font_thickness = 2
-        
-        # Timer mais rápido para vídeo (30Hz)
-        self.timer = self.create_timer(1.0/30.0, self.update_display)
-        self.thread_input = threading.Thread(target=self.listen_keyboard, daemon=True)
-        self.thread_input.start()
-        
-        self.get_logger().info("Nó de publicação de mídia inicializado com sucesso!")
+        self.tamanho_tela = (640, 480)
+        self.cor_fundo = (255, 255, 255)
+        self.cor_texto = (0, 0, 0)
+        self.fonte = cv2.FONT_HERSHEY_SIMPLEX
+        self.escala_fonte = 0.8
+        self.espessura_fonte = 2
+       
+        # Timer e threads
+        self.temporizador = self.create_timer(1.0/30.0, self.atualizar_tela)
+        self.thread_entrada = threading.Thread(target=self.escutar_teclado, daemon=True)
+        self.thread_entrada.start()
+       
+        self.get_logger().info("Nó de publicação de mídia inicializado!")
+########### NOVA FUNÇÂO ### 
+    def sendoDataToFoxGlove(self, str=None, video_path=None, image_path=None):
+        if str is not None:
+            # passar a string para uma imagem
+            frame = self.criar_frame_texto(str)
+            # publica no topico ui_display
+            self.publicar_frame(frame)
+        elif video_path is not None:
+            self.caminho_video = video_path
+            self.modo = "vídeo"
+            self.video_captura = None 
+        elif image_path is not None:
+            self.caminho_imagem = image_path
+            self.modo = "imagem"
 
-    def create_text_frame(self, text):
-        """Cria um frame com fundo branco e texto preto centralizado com margens."""
-        frame = np.full((self.display_size[1], self.display_size[0], 3), 
-                       self.bg_color, dtype=np.uint8)
-        
-        # Configurações de margem (20% da largura/altura)
-        margin_x = int(self.display_size[0] * 0.2)
-        margin_y = int(self.display_size[1] * 0.2)
-        max_width = self.display_size[0] - 2 * margin_x
+    def criar_frame_texto(self, texto):
+        frame = np.full((self.tamanho_tela[1], self.tamanho_tela[0], 3),
+                       self.cor_fundo, dtype=np.uint8)
+       
+        margem_x = int(self.tamanho_tela[0] * 0.2)
+        margem_y = int(self.tamanho_tela[1] * 0.2)
+        largura_maxima = self.tamanho_tela[0] - 2 * margem_x
 
-        # Configurações de texto
-        font = cv2.FONT_HERSHEY_SIMPLEX
-        font_scale = 0.8
-        thickness = 2
-        color = (0, 0, 0)  # Preto
-        line_spacing = 30  # Espaço entre linhas
-        
-        # Divide o texto em palavras
-        words = text.split()
-        lines = []
-        current_line = ""
+        palavras = texto.split()
+        linhas = []
+        linha_atual = ""
 
-        for word in words:
-            # Testa se a palavra cabe na linha atual
-            test_line = current_line + " " + word if current_line else word
-            (test_width, _), _ = cv2.getTextSize(test_line, font, font_scale, thickness)
-            
-            if test_width <= max_width:
-                current_line = test_line
+        for palavra in palavras:
+            linha_teste = linha_atual + " " + palavra if linha_atual else palavra
+            (largura_teste, _), _ = cv2.getTextSize(linha_teste, self.fonte,
+                                                    self.escala_fonte, self.espessura_fonte)
+           
+            if largura_teste <= largura_maxima:
+                linha_atual = linha_teste
             else:
-                if current_line:  # Adiciona a linha atual se não estiver vazia
-                    lines.append(current_line)
-                current_line = word
-    
-        if current_line:  # Adiciona a última linha
-            lines.append(current_line)
-        
-        # Calcula a altura total do texto
-        total_height = len(lines) * (cv2.getTextSize("Test", font, font_scale, thickness)[0][1] + line_spacing)
-        
-        # Posição Y inicial para centralizar verticalmente
-        y_start = (self.display_size[1] - total_height) // 2 + margin_y // 2
-        
-        # Desenha cada linha
-        for i, line in enumerate(lines):
-            text_size = cv2.getTextSize(line, font, font_scale, thickness)[0]
-            text_x = (self.display_size[0] - text_size[0]) // 2
-            text_y = y_start + i * (text_size[1] + line_spacing)
-            
-            cv2.putText(frame, line, (text_x, text_y), 
-                      font, font_scale, color, thickness, cv2.LINE_AA)
-        
+                if linha_atual:
+                    linhas.append(linha_atual)
+                linha_atual = palavra
+   
+        if linha_atual:
+            linhas.append(linha_atual)
+       
+        altura_total = len(linhas) * (cv2.getTextSize("Teste", self.fonte,
+                                                      self.escala_fonte, self.espessura_fonte)[0][1] + 30)
+       
+        y_inicio = (self.tamanho_tela[1] - altura_total) // 2 + margem_y // 2
+       
+        for i, linha in enumerate(linhas):
+            tamanho_texto = cv2.getTextSize(linha, self.fonte,
+                                            self.escala_fonte, self.espessura_fonte)[0]
+            x_texto = (self.tamanho_tela[0] - tamanho_texto[0]) // 2
+            y_texto = y_inicio + i * (tamanho_texto[1] + 30)
+           
+            cv2.putText(frame, linha, (x_texto, y_texto),
+                        self.fonte, self.escala_fonte, self.cor_texto,
+                        self.espessura_fonte, cv2.LINE_AA)
+       
         return frame
 
-    def resize_with_aspect(self, frame, aspect_ratio=None):
-        """
-        Redimensiona qualquer frame (vídeo ou imagem) mantendo a proporção,
-        adicionando barras pretas se necessário.
-        
-        Args:
-            frame (numpy.ndarray): Frame a ser redimensionado
-            aspect_ratio (float): Proporção desejada (None para calcular automaticamente)
-            
-        Returns:
-            numpy.ndarray: Frame redimensionado com letterbox se necessário
-        """
-        if aspect_ratio is None:
-            height, width = frame.shape[:2]
-            aspect_ratio = width / height
-        
-        display_aspect = self.display_size[0] / self.display_size[1]
-        
-        # Calcula o novo tamanho mantendo a proporção
-        if display_aspect > aspect_ratio:
-            # Conteúdo mais estreito que o display (barras laterais)
-            new_height = self.display_size[1]
-            new_width = int(new_height * aspect_ratio)
+    def redimensionar_com_aspecto(self, frame):
+        altura, largura = frame.shape[:2]
+        proporcao_aspecto = largura / altura
+        proporcao_tela = self.tamanho_tela[0] / self.tamanho_tela[1]
+       
+        if proporcao_tela > proporcao_aspecto:
+            nova_altura = self.tamanho_tela[1]
+            nova_largura = int(nova_altura * proporcao_aspecto)
         else:
-            # Conteúdo mais largo que o display (barras superior/inferior)
-            new_width = self.display_size[0]
-            new_height = int(new_width / aspect_ratio)
-        
-        # Redimensiona
-        resized_frame = cv2.resize(frame, (new_width, new_height))
-        
-        # Cria fundo branco
-        result_frame = np.full((self.display_size[1], self.display_size[0], 3), 
-                          self.bg_color, dtype=np.uint8)
-        
-        # Centraliza o conteúdo no display
-        x_offset = (self.display_size[0] - new_width) // 2
-        y_offset = (self.display_size[1] - new_height) // 2
-        
-        # Coloca o conteúdo redimensionado no centro
-        result_frame[y_offset:y_offset+new_height, x_offset:x_offset+new_width] = resized_frame
-        
-        return result_frame
+            nova_largura = self.tamanho_tela[0]
+            nova_altura = int(nova_largura / proporcao_aspecto)
+       
+        frame_redimensionado = cv2.resize(frame, (nova_largura, nova_altura))
+        frame_resultado = np.full((self.tamanho_tela[1], self.tamanho_tela[0], 3),
+                                  self.cor_fundo, dtype=np.uint8)
+       
+        deslocamento_x = (self.tamanho_tela[0] - nova_largura) // 2
+        deslocamento_y = (self.tamanho_tela[1] - nova_altura) // 2
+       
+        frame_resultado[deslocamento_y:deslocamento_y+nova_altura, deslocamento_x:deslocamento_x+nova_largura] = frame_redimensionado
+       
+        return frame_resultado
 
-    def update_display(self):
-        """Atualiza o display com o conteúdo atual (texto, vídeo ou imagem)."""
+    def atualizar_tela(self):
         try:
+            frame = None
             if self.modo == "texto":
-                current_time = time.time()
-                if current_time - self.last_text_change >= self.text_display_time:
-                    self.current_msg = (self.current_msg + 1) % len(self.messages)
-                    self.last_text_change = current_time
-                
-                text = self.messages[self.current_msg]
-                frame = self.create_text_frame(text)
-                
+                frame = self.tratar_modo_texto()
             elif self.modo == "vídeo":
-                if self.cap is None or not self.cap.isOpened():
-                    self.cap = cv2.VideoCapture(self.video_path)
-                    if not self.cap.isOpened():
-                        self.get_logger().error(f"Falha ao abrir vídeo: {self.video_path}")
-                        return
-                
-                # Pula frames para fazer o vídeo mais rápido
-                for _ in range(int(self.video_speed)):
-                    ret, frame = self.cap.read()
-                
-                if not ret:
-                    self.cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
-                    ret, frame = self.cap.read()
-                
-                frame = self.resize_with_aspect(frame, self.video_aspect_ratio)
-            
+                frame = self.tratar_modo_video()
             elif self.modo == "imagem":
-                frame = cv2.imread(self.image_path)
-                if frame is None:
-                    self.get_logger().error(f"Falha ao carregar imagem: {self.image_path}")
-                    return
-                
-                if self.image_aspect_ratio is None:
-                    height, width = frame.shape[:2]
-                    self.image_aspect_ratio = width / height
-                
-                frame = self.resize_with_aspect(frame, self.image_aspect_ratio)
-            
-            # Publica o frame
-            msg = self.bridge.cv2_to_imgmsg(frame, encoding="bgr8")
-            self.publisher_ui.publish(msg)
+                frame = self.tratar_modo_imagem()
+           
+            if frame is not None:
+                self.publicar_frame(frame)
 
         except Exception as e:
-            self.get_logger().error(f"Erro ao atualizar display: {str(e)}")
+            self.get_logger().error(f"Erro no display: {str(e)}")
 
-    def listen_keyboard(self):
-        """Escuta comandos do teclado para alternar entre modos."""
-        self.get_logger().info("Controles:\n1 - Modo Vídeo\n2 - Modo Texto\n3 - Modo Imagem\nCtrl+C - Sair")
-        
-        while self.running:
+    def tratar_modo_texto(self):
+        tempo_atual = time.time()
+        if tempo_atual - self.ultima_mudanca_texto >= self.tempo_exibicao_texto:
+            self.mensagem_atual = (self.mensagem_atual + 1) % len(self.mensagens)
+            self.ultima_mudanca_texto = tempo_atual
+        return self.criar_frame_texto(self.mensagens[self.mensagem_atual])
+
+    def tratar_modo_video(self):
+        if self.video_captura is None or not self.video_captura.isOpened():
+            if not os.path.isfile(self.caminho_video):
+                self.get_logger().error(f"Arquivo de vídeo não encontrado: {self.caminho_video}")
+                return None  
+           
+            self.video_captura = cv2.VideoCapture(self.caminho_video)
+            if not self.video_captura.isOpened():
+                self.get_logger().error(f"Falha ao abrir o vídeo: {self.caminho_video}")
+                return None  
+
+        for _ in range(int(self.velocidade_video)):
+            ret, frame = self.video_captura.read()
+       
+        if not ret:
+            self.video_captura.set(cv2.CAP_PROP_POS_FRAMES, 0)
+            ret, frame = self.video_captura.read()
+       
+        return self.redimensionar_com_aspecto(frame) if ret else None
+
+    def tratar_modo_imagem(self):
+        if not os.path.isfile(self.caminho_imagem):
+            raise FileNotFoundError(f"Imagem não encontrada: {self.caminho_imagem}")
+       
+        frame = cv2.imread(self.caminho_imagem)
+        if frame is None:
+            raise RuntimeError("Falha ao carregar imagem")
+       
+        return self.redimensionar_com_aspecto(frame)
+
+    def publicar_frame(self, frame):
+        msg = self.ponte.cv2_to_imgmsg(frame, encoding="bgr8")
+        self.publicador_ui.publish(msg)
+
+    def escutar_teclado(self):
+        self.get_logger().info("Controles:\n1 - Vídeo\n2 - Texto\n3 - Imagem\nCtrl+C - Sair")
+        while self.executando:
             try:
-                key = input("Digite 1 (vídeo), 2 (texto) ou 3 (imagem): ").strip()
-                
-                if key == '1':
+                tecla = input("Digite 1 (vídeo), 2 (texto) ou 3 (imagem): ").strip()
+               
+                if tecla == '1':
                     self.modo = "vídeo"
-                    self.get_logger().info("Modo alterado para: VÍDEO")
-                elif key == '2':
+                    self.get_logger().info("Modo: VÍDEO")
+                elif tecla == '2':
                     self.modo = "texto"
-                    self.get_logger().info("Modo alterado para: TEXTO")
-                elif key == '3':
+                    self.get_logger().info("Modo: TEXTO")
+                elif tecla == '3':
                     self.modo = "imagem"
-                    self.get_logger().info("Modo alterado para: IMAGEM")
+                    self.get_logger().info("Modo: IMAGEM")
                 else:
-                    self.get_logger().warning("Opção inválida! Use 1, 2 ou 3.")
-                    
+                    self.get_logger().warning("Opção inválida!")
+                   
             except Exception as e:
                 self.get_logger().error(f"Erro na entrada: {str(e)}")
                 break
 
-    def destroy_node(self):
-        """Finalização segura do nó."""
-        self.get_logger().info("Encerrando nó de mídia...")
-        self.running = False
-        
-        if self.cap and self.cap.isOpened():
-            self.cap.release()
-            self.get_logger().info("Recursos de vídeo liberados.")
-        
+    def destruir_no(self):
+        self.get_logger().info("Encerrando nó...")
+        self.executando = False
+       
+        if self.video_captura and self.video_captura.isOpened():
+            self.video_captura.release()
+       
         super().destroy_node()
 
 def main(args=None):
     rclpy.init(args=args)
-    
     try:
-        media_publisher = MediaPublisher()
-        rclpy.spin(media_publisher)
-        
+        no = MediaPublisher()
+        # Exemplo de uso:
+        no.sendoDataToFoxGlove(video_path='/home/evangelista/videos/chimas.mp4')
+        rclpy.spin(no)
     except KeyboardInterrupt:
-        media_publisher.get_logger().info("Interrupção por teclado detectada.")
-    except Exception as e:
-        media_publisher.get_logger().fatal(f"Erro fatal: {str(e)}")
+        no.get_logger().info("Interrompido pelo usuário")
     finally:
-        media_publisher.destroy_node()
-        if rclpy.ok():
-            rclpy.shutdown()
+        no.destruir_no()
+        rclpy.shutdown()
 
 if __name__ == '__main__':
     main()
