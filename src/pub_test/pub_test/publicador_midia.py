@@ -13,12 +13,10 @@ class MediaPublisher(Node):
     def __init__(self):
         super().__init__('publicador_midia')
        
-        
         self.modo = "texto"
         self.publicador_ui = self.create_publisher(Image, '/ui_display', 10)
         self.ponte = CvBridge()
        
-        
         self.mensagens = [
             "Assista ao movimento robótico.",
             "Agora, levante o objeto devagar.",
@@ -27,15 +25,14 @@ class MediaPublisher(Node):
         self.mensagem_atual = 0
         self.tempo_exibicao_texto = 3.0
         self.ultima_mudanca_texto = time.time()
-       
-        # Configurações de mídia
+       #conf video e imagem
         self.caminho_video = '/home/evangelista/videos/chimas.mp4' 
         self.caminho_imagem = '/home/evangelista/exemplo/imagem.jpg'  
         self.video_captura = None
         self.executando = True
         self.velocidade_video = 1.5
        
-        # Configurações de display
+        # Conf de display
         self.tamanho_tela = (640, 480)
         self.cor_fundo = (255, 255, 255)
         self.cor_texto = (0, 0, 0)
