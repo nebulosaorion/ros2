@@ -3,6 +3,7 @@ import os
 from glob import glob
 
 package_name = 'pub_test'
+python_module_name = 'pub_test_pkg'
 
 setup(
     name=package_name,
@@ -22,16 +23,22 @@ setup(
         # Inclui arquivos de parâmetros (se houver)
         (os.path.join('share', package_name, 'config'), glob('config/*.yaml')),
     ],
-    install_requires=['setuptools'],
+    install_requires=[
+        'setuptools',
+        'opencv-python',
+        'numpy',
+    ],
     zip_safe=False,
     entry_points={
         'console_scripts': [
-            'publicador_midia = pub_test.publicador_midia:main',
+            'publicador_midia = pub_test_pkg.publicador_midia:main',
+            'teste_publicador = pub_test_pkg.teste_publicador:main',  # Adiciona o script de teste
         ],
     },
+
     # Metadados adicionais
     author='Evangelista',
-    author_email='evangelista@todo.todo',
+    author_email='evangelista@furg.br',
     description='Pacote para processamento de mídia no ROS2',
     license='Apache License 2.0',
     keywords=['ROS2', 'Foxglove', 'Media Processing'],
