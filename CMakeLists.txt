@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.5)
 project(pub_test)
 
-# Default to C++14
+# Default to C++14 Não preciso, pois o codigo é em python, mas é bom deixar.
 if(NOT CMAKE_CXX_STANDARD)
   set(CMAKE_CXX_STANDARD 14)
 endif()

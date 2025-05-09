@@ -36,7 +36,7 @@ setup(
         ],
     },
 
-    # Metadados adicionais
+    
     author='Evangelista',
     author_email='evangelista@furg.br',
     description='Pacote para processamento de mídia no ROS2',

@@ -1,9 +1,9 @@
-from launch import LaunchDescription
-from launch.actions import ExecuteProcess, IncludeLaunchDescription
-from launch_ros.actions import Node
-from launch.launch_description_sources import AnyLaunchDescriptionSource
-from ament_index_python.packages import get_package_share_directory
-import os
+from launch import LaunchDescription #é usada para definir e organizar o conteúdo de um arquivo de lançamento no ROS 2.
+from launch.actions import ExecuteProcess, IncludeLaunchDescription ## ações para executar um processo ou incluir outra descrição de lançamento dentro de um lançamento.
+from launch_ros.actions import Node # ação Node do launch_ros, que permite definir e lançar nós ROS 2 em um arquivo de lançamento.
+from launch.launch_description_sources import AnyLaunchDescriptionSource # permite incluir lançamentos de qualquer fonte, como arquivos XML ou Python.
+from ament_index_python.packages import get_package_share_directory #  diretório de compartilhamento de um pacote ROS 2, útil para acessar arquivos dentro de pacotes.
+import os #padrão
 
 def generate_launch_description():
     
@@ -36,7 +36,7 @@ def generate_launch_description():
             name='publicador_midia',
             output='screen',
             parameters=[{
-                'tamanho_tela': [800, 600],  # Parâmetro configurável
+                'tamanho_tela': [800, 600],  
             }]
         ),
 

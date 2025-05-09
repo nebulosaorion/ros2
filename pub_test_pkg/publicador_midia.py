@@ -10,12 +10,12 @@ import cv2 #manipular img, abrir arquivos
 import numpy as np  # matematica, manipulação de arrays
 import os
 
-#Biblioteca para maquina de estados
+#Biblioteca yasmin, permite a criação de estados e uma máquina de estados
 from yasmin import State, StateMachine
-from yasmin.blackboard import Blackboard
+from yasmin.blackboard import Blackboard  # é uma estrutura compartilhada entre os estados
 from yasmin_ros.basic_outcomes import SUCCEED, ABORT
 
-class MediaPublisherState(State):
+class MediaPublisherState(State):#Classe base para todos os estados que vão publicar algo visual.
     def __init__(self):
         super().__init__(outcomes=[SUCCEED, ABORT])
         self.bridge = CvBridge()
@@ -26,22 +26,24 @@ class MediaPublisherState(State):
         self.escala_fonte = 1.0
         self.espessura_fonte = 2
 
-    def on_enter(self, blackboard: Blackboard) -> None:
+    def on_enter(self, blackboard: Blackboard) -> None:#Esse método é chamado quando o estado é ativado
         self.node = blackboard.node
         self.publisher = blackboard.publisher
         if 'tamanho_tela' in blackboard:
             self.tamanho_tela = blackboard.tamanho_tela
 
-class ProcessMessageState(MediaPublisherState):
+class ProcessMessageState(MediaPublisherState):#estado que processa uma mensagem do tipo DisplayMessage
     def __init__(self):
         super().__init__()
         self.active_subscription = None
 
     def execute(self, blackboard: Blackboard) -> str:
         try:
-            msg = blackboard.display_msg
+            # lê a mensagem do blackboard
+            msg = blackboard.display_msg 
             self.node.get_logger().info(f"Processando mensagem: type={msg.type}, value={msg.value}")
             
+            # processa diferentes tipos de mensagem (tópico, vídeo, imagem, frase)
             if msg.type == "topic":
                 return self.handle_topic(blackboard, msg.value)
             elif msg.type == "video":
@@ -51,25 +53,31 @@ class ProcessMessageState(MediaPublisherState):
             elif msg.type == "sentence":
                 return self.handle_sentence(blackboard, msg.value)
             else:
+                
+                # Se o tipo da mensagem for desconhecido, retorna ABORT
                 self.node.get_logger().warn(f"Tipo desconhecido: {msg.type}")
                 return ABORT
         except Exception as e:
+             # Se ocorrer um erro no processamento, registra o erro e retorna ABORT
             self.node.get_logger().error(f"Erro ao processar mensagem: {str(e)}")
             return ABORT
         
 
     def handle_image(self, blackboard: Blackboard, image_path: str) -> str:
+       # verifica se o caminho da imagem é absoluto
         if not os.path.isabs(image_path):
             image_path = os.path.expanduser(image_path)
-            
+        # verifica se o arquivo da imagem existe
         if not os.path.exists(image_path):
             self.node.get_logger().error(f"Imagem não encontrada: {image_path}")
             return ABORT
             
         try:
+            # lê a imagem com OpenCV
             frame = cv2.imread(image_path)
             if frame is not None:
                 frame = self.resize_with_aspect(frame)
+                   # publica a imagem
                 self.publish_image(frame)
                 return SUCCEED
             else:
@@ -81,13 +89,14 @@ class ProcessMessageState(MediaPublisherState):
 
     def handle_sentence(self, blackboard: Blackboard, text: str) -> str:
         try:
+            # cria a imagem com o texto
             frame = self.create_text_frame(text)
             self.publish_image(frame)
             return SUCCEED
         except Exception as e:
             self.node.get_logger().error(f"Erro ao criar frame de texto: {str(e)}")
             return ABORT
-
+ # cria uma imagem vazia com a cor de fundo
     def create_text_frame(self, text: str) -> np.ndarray:
         frame = np.full((self.tamanho_tela[1], self.tamanho_tela[0], 3), 
                        self.cor_fundo, dtype=np.uint8)
@@ -125,7 +134,7 @@ class ProcessMessageState(MediaPublisherState):
                        self.espessura_fonte, cv2.LINE_AA)
         
         return frame
-
+#dimensões da tela
     def resize_with_aspect(self, frame: np.ndarray) -> np.ndarray:
         h, w = frame.shape[:2]
         target_w, target_h = self.tamanho_tela
@@ -141,14 +150,14 @@ class ProcessMessageState(MediaPublisherState):
         result[y_offset:y_offset+new_h, x_offset:x_offset+new_w] = resized
         
         return result
-
+#convertento img do opencv para formato RO, publica bo topico ui_display
     def publish_image(self, frame: np.ndarray) -> None:
         try:
             msg = self.bridge.cv2_to_imgmsg(frame, encoding="bgr8")
             self.publisher.publish(msg)
         except Exception as e:
             self.node.get_logger().error(f"Erro ao publicar imagem: {str(e)}")
-
+# Classe que representa o nó ROS que publica imagens e textos
 class MediaPublisherNode:
     def __init__(self):
         self.node = Node("media_publisher")
@@ -180,8 +189,8 @@ class MediaPublisherNode:
         self.node.get_logger().info("Media Publisher pronto para receber comandos!")
 
     def message_callback(self, msg: DisplayMessage):
-        self.blackboard.display_msg = msg
-        outcome = self.fsm(self.blackboard)
+        self.blackboard.display_msg = msg # atualiza a mensagem no blackboard
+        outcome = self.fsm(self.blackboard)  # executa a máquina de estados
         self.node.get_logger().info(f"Processamento concluído: {outcome}")
 
 def main(args=None):
